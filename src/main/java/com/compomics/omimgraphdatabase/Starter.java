@@ -137,8 +137,18 @@ public class Starter {
                     accession = accession.substring(0, accession.indexOf(";"));
                 }
                 String sequence = (String) proteinHashMap.get("  ");
+                String nameString = (String) proteinHashMap.get("DE");
+                //enkel de RecName overhouden.
+                int currentInd = -1;
+                int startInd = 0;
+                String name = "";
+                while( (currentInd = nameString.indexOf("RecName: Full=", startInd)) >= 0) {
+                    startInd = currentInd+14;
+                    name = nameString.substring(startInd, nameString.indexOf(";", startInd));               
+                }
+                    
                 // Create protein vertex
-                Vertex proteinVertex = createProteinVertex(accession, sequence);
+                Vertex proteinVertex = createProteinVertex(accession, sequence, name);
                 // Store protein vertex in accession to vertex lookup map.
                 proteinAccessionToVertexMap.put(accession, proteinVertex);
                 
@@ -296,7 +306,7 @@ public class Starter {
 
     
 
-    public Vertex createProteinVertex(String accession, String sequence) {
+    public Vertex createProteinVertex(String accession, String sequence, String name) {
         Vertex vertex = graph.addVertex(null);
 
         vertex.setProperty(ProteinProperty.ACCESSION.toString(), accession);
@@ -304,6 +314,9 @@ public class Starter {
 
         vertex.setProperty(ProteinProperty.SEQUENCE.toString(), sequence);
         proteinIndex.put(ProteinProperty.SEQUENCE.toString(), sequence, vertex);
+        
+        vertex.setProperty(ProteinProperty.NAME.toString(), name);
+        proteinIndex.put(ProteinProperty.NAME.toString(), name, vertex);
 
         typeIndex.put("type", "protein", vertex);
         
@@ -477,10 +490,10 @@ public class Starter {
 //        GraphDb.printResult("Get protein by tissue.", cypherQuery.getProteinByTissue("Skin"), "protein.accession");
         
         //alle proteinen die minstens X mimentries hebben.
-//        GraphDb.printResult("Get proteins with 10 mimentries.", cypherQuery.getProteinWithXMims(10), "protein.accession");
+        GraphDb.printResult("Get proteins with 5 mimentries.", cypherQuery.getProteinWithXMims(5), "protein");
         //alle mims bij speciefiek proteine
-        GraphDb.printResult("Count mims attached to protein.", cypherQuery.mimCount("P02545"), "mimCount");
-        GraphDb.printResult("Get mims attached to protein.", cypherQuery.getMimByProteinAccession("P02545"), "mim.mimAccession");
+//        GraphDb.printResult("Count mims attached to protein.", cypherQuery.mimCount("P02545"), "mimCount");
+//        GraphDb.printResult("Get mims attached to protein.", cypherQuery.getMimByProteinAccession("P02545"), "mim.mimAccession");
         
         //alle mimentries die met een minimum aantal proteinen gelinkt zijn.
 //        GraphDb.printResult("Get mims with 10 proteins.", cypherQuery.getMimWithXProteins(10), "mim.mimAccession");        
@@ -528,7 +541,7 @@ public class Starter {
             starter = new Starter(file);        
             // true om db te cleanen en opnieuw op te vullen (=cleanstart)
             // false om bestaande db te gebruiken
-            starter.connectDatabase("C:/Users/Caroline/Documents/geneeskunde/HP/GraphDatabase", false);
+            starter.connectDatabase("C:/Users/Caroline/Documents/geneeskunde/HP/GraphDatabase", true);
             starter.queryProteins();
             Starter.exportGraphML(starter.getGraph(), new File ("C:/Users/Caroline/Documents/geneeskunde/HP/outputGraph.GraphML"));
 //            GephiGraph.makeGraph(graphDbFile);
