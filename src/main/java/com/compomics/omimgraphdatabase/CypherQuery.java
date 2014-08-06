@@ -88,7 +88,7 @@ public class CypherQuery {
                               + "MATCH (protein)-[:PROTEIN_TO_MIM]-(mim) "
                               + "WITH protein, count(mim) as mims "
                               + "WHERE mims > " + X + " "
-                              + "RETURN protein.accession");
+                              + "RETURN protein");
     }
    
 //   public ExecutionResult getProteinWithXMims() {
@@ -137,8 +137,9 @@ public class CypherQuery {
         return engine.execute("START mimA=node:mim(mimAccession ='" + aMimAccession + "'),  mimB=node:mim(mimAccession ='" + bMimAccession + "')"
                               + "MATCH (mimA)<-[:PROTEIN_TO_MIM]-(protein)-[:PROTEIN_TO_MIM]->(mimB) "
                               + "RETURN protein.accession");
-        
     }
+    
+    //
      
 
      // aantal nodes van een gegeven type. 
@@ -147,12 +148,5 @@ public class CypherQuery {
                                + "WITH count(n) as cnt "
                                + "RETURN cnt");
      } 
-     
-//     // aantal mimentries + mimaccessions gelinkt aan proteinen die voorkomen bij mimentries met een minimum aantal proteinen
-//     public ExecutionResult getMimByMimViaProtein() {
-//         return engine.execute("START protein=node:type(type='protein') "
-//                               + "MATCH (mim)-[:PROTEIN_TO_MIM]-(protein)-[:PROTEIN_TO_MIM]-(mim) "
-//                               + "WHERE mim.id != mim2.id "        
-//                               + "RETURN mim.mimAccession");
-//     }
+ 
 }
