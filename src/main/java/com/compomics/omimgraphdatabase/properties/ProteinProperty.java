@@ -6,7 +6,8 @@ package com.compomics.omimgraphdatabase.properties;
  */
 public enum ProteinProperty {
         ACCESSION ("accession"),
-        SEQUENCE("sequence");
+        SEQUENCE ("sequence"),
+        NAME ("name");
 	
 	private String propertyName;
 	private ProteinProperty(String propertyName) {
