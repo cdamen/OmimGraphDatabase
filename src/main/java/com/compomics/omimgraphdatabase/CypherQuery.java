@@ -18,8 +18,7 @@ public class CypherQuery {
 	public CypherQuery(ExecutionEngine engine) {
 		this.engine = engine;
         }
-                
- 
+
 // Cypherqueries.
     
     // alle nodes.    
@@ -32,7 +31,7 @@ public class CypherQuery {
         return engine.execute("START n=node:type(type='" + aType + "') RETURN n");
     }
 
-    // alle nodes met een gegeven (gedeelte) accessienummer.
+    // alle proteinen met isoforms.
     public ExecutionResult getProteinByAccessionMatch(String aMatch) {
         return engine.execute("START protein=node:type(type='protein') WHERE protein.accession=~'.*" + aMatch + ".*' RETURN protein");
     }
@@ -49,7 +48,7 @@ public class CypherQuery {
                               + "RETURN protein.accession LIMIT 20");
     }
     
-    // aan mimentries + mimentries bij gegeven proteine.
+    // aantal mimentries + mimentries bij gegeven proteine.
     public ExecutionResult mimCount (String aProtAccession){
         return engine.execute("START protein=node:type(type='protein') "
                               + "MATCH (protein)-[:PROTEIN_TO_MIM]->mim "
@@ -57,7 +56,6 @@ public class CypherQuery {
                               + "WITH count(mim) as mimCount "
                               + "RETURN mimCount");
     }
-    
     public ExecutionResult getMimByProteinAccession (String aProtAccession) {
         return engine.execute("START protein=node:type(type='protein') "
                 + "MATCH (protein)-[:PROTEIN_TO_MIM]->mim "
@@ -73,8 +71,6 @@ public class CypherQuery {
                                + "WITH count(protein) as protCount "
                                + "RETURN protCount");
      }
-    
-
     public ExecutionResult getProteinByMimAccession(String aMimAccession) {
        return engine.execute("START mim=node:type(type='mim') "
                              + "MATCH (mim)<-[:PROTEIN_TO_MIM]-(protein)" 
@@ -137,10 +133,30 @@ public class CypherQuery {
         return engine.execute("START mimA=node:mim(mimAccession ='" + aMimAccession + "'),  mimB=node:mim(mimAccession ='" + bMimAccession + "')"
                               + "MATCH (mimA)<-[:PROTEIN_TO_MIM]-(protein)-[:PROTEIN_TO_MIM]->(mimB) "
                               + "RETURN protein.accession");
+    }  
+    
+    // geeft relatie (voorlopig enkel index)
+    public ExecutionResult getRelationship(String aAccession, String bAccession) {
+        return engine.execute("START proteinA=node:protein(accession = '" + aAccession + "'), proteinB=node:protein(accession = '" + bAccession + "') "
+                              + "MATCH (proteinA)-[r]-(proteinB) "
+                              + "RETURN r");
     }
     
-    //
-     
+    // eiwitinteracties
+    public ExecutionResult getProteinInteractions(String aAccession) {
+        return engine.execute("START proteinA=node:protein(accession = '" + aAccession + "') "
+                              + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(protein) "
+                              + "RETURN protein.accession");
+    }
+    //werkt niet :(
+    //geen enkel proteine heeft meer >3 interacties??
+    public ExecutionResult getProteinWithXInteractions(int X) {
+        return engine.execute("START protein=node:type(type='protein') "
+                              + "MATCH (protein)-[:PROTEIN_TO_PROTEIN_INTERACTION]-(protein) "
+                              + "WITH protein, count(protein) as proteins "
+                              + "WHERE proteins > " + X + " "
+                              + "RETURN protein.accession");
+    }
 
      // aantal nodes van een gegeven type. 
      public ExecutionResult countNodes(String aType) {
