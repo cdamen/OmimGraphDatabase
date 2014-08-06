@@ -137,6 +137,7 @@ public class CypherQuery {
         return engine.execute("START mimA=node:mim(mimAccession ='" + aMimAccession + "'),  mimB=node:mim(mimAccession ='" + bMimAccession + "')"
                               + "MATCH (mimA)<-[:PROTEIN_TO_MIM]-(protein)-[:PROTEIN_TO_MIM]->(mimB) "
                               + "RETURN protein.accession");
+        
     }
      
 
