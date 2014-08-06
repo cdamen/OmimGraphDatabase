@@ -12,6 +12,10 @@ import com.compomics.omimgraphdatabase.properties.ProteinProperty;
 import com.compomics.omimgraphdatabase.properties.TissueProperty;
 import com.compomics.omimgraphdatabase.properties.MIMProperty;
 import com.compomics.omimgraphdatabase.properties.LocationProperty;
+import com.compomics.omimgraphdatabase.properties.ProteinToLocationProperty;
+import com.compomics.omimgraphdatabase.properties.ProteinToMimProperty;
+import com.compomics.omimgraphdatabase.properties.ProteinToProteinInteractionProperty;
+import com.compomics.omimgraphdatabase.properties.ProteinToTissueProperty;
 
 import com.teradata.jdbc.jdbc_4.io.TDNetworkIOIF;
 
@@ -421,9 +425,9 @@ public class Starter {
    
     public void setupIndices() {
         // Protein index
-        proteinIndex = indexGraph.getIndex("proteins", Vertex.class);
+        proteinIndex = indexGraph.getIndex("protein", Vertex.class);
         if (proteinIndex == null) {
-            proteinIndex = indexGraph.createIndex("proteins", Vertex.class);
+            proteinIndex = indexGraph.createIndex("protein", Vertex.class);
             ((TransactionalGraph) indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS); 
         }
 
@@ -490,7 +494,7 @@ public class Starter {
 //        GraphDb.printResult("Get protein by tissue.", cypherQuery.getProteinByTissue("Skin"), "protein.accession");
         
         //alle proteinen die minstens X mimentries hebben.
-        GraphDb.printResult("Get proteins with 5 mimentries.", cypherQuery.getProteinWithXMims(5), "protein");
+//        GraphDb.printResult("Get proteins with 5 mimentries.", cypherQuery.getProteinWithXMims(5), "protein");
         //alle mims bij speciefiek proteine
 //        GraphDb.printResult("Count mims attached to protein.", cypherQuery.mimCount("P02545"), "mimCount");
 //        GraphDb.printResult("Get mims attached to protein.", cypherQuery.getMimByProteinAccession("P02545"), "mim.mimAccession");
@@ -507,15 +511,15 @@ public class Starter {
         //gemeenschappelijke eiwitten bij mims.
 //        GraphDb.printResult("Get common proteins.", cypherQuery.getCommonProteins("604967", "604966"), "protein.accession");
         
-        //aantal nodes van een bepaald type.
-//        GraphDb.printResult("Count nodes of a given type.", cypherQuery.countNodes("tissue"), "cnt");
-        
-        //werkt nog niet
-//        GraphDb.printResult("Get mimbymim.", cypherQuery.getMimByMimViaProtein(), "mim.mimAccession");
-        
         //relationship
-        //werkt nog niet
-//        GraphDb.printResult("Get relationship.", cypherQuery.getRelationship(), "r");
+//        GraphDb.printResult("Get relationship.", cypherQuery.getRelationship("Q9NYF0", "P31946"), "r");
+        
+        //eiwitinteracties
+//        GraphDb.printResult("Get proteininteractions.", cypherQuery.getProteinInteractions("P31946"), "protein.accession");
+        GraphDb.printResult("Get proteininteractions.", cypherQuery.getProteinWithXInteractions(3), "protein.accession");        
+        
+        //aantal nodes van een bepaald type.
+//       GraphDb.printResult("Count nodes of a given type.", cypherQuery.countNodes("protein"), "cnt");
     }
     
 
@@ -541,7 +545,7 @@ public class Starter {
             starter = new Starter(file);        
             // true om db te cleanen en opnieuw op te vullen (=cleanstart)
             // false om bestaande db te gebruiken
-            starter.connectDatabase("C:/Users/Caroline/Documents/geneeskunde/HP/GraphDatabase", true);
+            starter.connectDatabase("C:/Users/Caroline/Documents/geneeskunde/HP/GraphDatabase", false);
             starter.queryProteins();
             Starter.exportGraphML(starter.getGraph(), new File ("C:/Users/Caroline/Documents/geneeskunde/HP/outputGraph.GraphML"));
 //            GephiGraph.makeGraph(graphDbFile);
