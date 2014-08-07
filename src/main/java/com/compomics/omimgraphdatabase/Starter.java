@@ -492,18 +492,22 @@ public class Starter {
 //        GraphDb.printResult("Retrieving specific protein:", cypherQuery.getProteinByAccession("Q8R511"), "protein"); 
         //alle proteinen in een specifiek weefsel.
 //        GraphDb.printResult("Get protein by tissue.", cypherQuery.getProteinByTissue("Skin"), "protein.accession");
-        
+        //alle weefsels bij een specifiek proteine
+//        GraphDb.printResult("Get tissues by protein.", cypherQuery.getTissueByProtein("P21333"), "tissue.tissue");
+        //interagerende proteinen in hetzelfde weefsel.
+        GraphDb.printResult("Count interacting proteins in the same tissue.", cypherQuery.countInteractingProteinsInSameTissue("Q96EB6", "Leukemic T-cell"), "proteins");
+        GraphDb.printResult("Get interacting proteins in the same tissue.", cypherQuery.getInteractingProteinsInSameTissue("Q96EB6", "Leukemic T-cell"), "protein.accession");
         //alle proteinen die minstens X mimentries hebben.
 //        GraphDb.printResult("Get proteins with 5 mimentries.", cypherQuery.getProteinWithXMims(5), "protein");
         //alle mims bij speciefiek proteine
-//        GraphDb.printResult("Count mims attached to protein.", cypherQuery.mimCount("P02545"), "mimCount");
-//        GraphDb.printResult("Get mims attached to protein.", cypherQuery.getMimByProteinAccession("P02545"), "mim.mimAccession");
+//        GraphDb.printResult("Count mims attached to protein.", cypherQuery.mimCount("P04637"), "mimCount");
+//        GraphDb.printResult("Get mims attached to protein.", cypherQuery.getMimByProteinAccession("P04637"), "mim.mimAccession");
         
         //alle mimentries die met een minimum aantal proteinen gelinkt zijn.
 //        GraphDb.printResult("Get mims with 10 proteins.", cypherQuery.getMimWithXProteins(10), "mim.mimAccession");        
         //alle proteinen bij een specifieke mimaccessienummer.
 //        GraphDb.printResult("Count proteins attached to mimaccession.", cypherQuery.protCount("142830"), "protCount");
-//        GraphDb.printResult("Get protein by mimaccession.", cypherQuery.getProteinByMimAccession("142800"), "protein.accession");
+//       GraphDb.printResult("Get protein by mimaccession.", cypherQuery.getProteinByMimAccession("256000"), "protein.accession");
 
         //Subcellulaire locatie van proteinen gelinkt aan een bepaalde mim.
 //        GraphDb.printResult("Get subcellular location by mim.", cypherQuery.getLocationByMim("252010"), "location");
@@ -512,11 +516,15 @@ public class Starter {
 //        GraphDb.printResult("Get common proteins.", cypherQuery.getCommonProteins("604967", "604966"), "protein.accession");
         
         //relationship
-//        GraphDb.printResult("Get relationship.", cypherQuery.getRelationship("Q9NYF0", "P31946"), "r");
+//        GraphDb.printResult("Get relationship.", cypherQuery.getRelationship("P31946", "Q9NYF0"), "r");
         
         //eiwitinteracties
-//        GraphDb.printResult("Get proteininteractions.", cypherQuery.getProteinInteractions("P31946"), "protein.accession");
-        GraphDb.printResult("Get proteininteractions.", cypherQuery.getProteinWithXInteractions(3), "protein.accession");        
+//        GraphDb.printResult("Get proteininteractions.", cypherQuery.getProteinInteractions("P09022"), "protein.accession");
+//        GraphDb.printResult("Get proteininteractions > 35.", cypherQuery.getProteinWithXInteractions(35), "protein.accession");
+//        GraphDb.printResult("Count interactions.", cypherQuery.countInteractions("P09022"), "interactionCount");
+        //Proteinen op afstand 2 van bepaald proteine + aantal
+//        GraphDb.printResult("Count proteins that interact with interacting proteins.", cypherQuery.countProteinByProteinByProtein("P09022"), "protCount");
+//        GraphDb.printResult("Get proteins that interact with interacting proteins.", cypherQuery.getProteinByProteinByProtein("P09022"), "protein.accession");
         
         //aantal nodes van een bepaald type.
 //       GraphDb.printResult("Count nodes of a given type.", cypherQuery.countNodes("protein"), "cnt");
