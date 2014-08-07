@@ -48,6 +48,14 @@ public class CypherQuery {
                               + "RETURN protein.accession LIMIT 20");
     }
     
+    public ExecutionResult getTissueByProtein(String aAccession) {
+        return engine.execute("START protein=node:protein(accession='" + aAccession + "') "
+                              + "MATCH (protein)-[:PROTEIN_TO_TISSUE]->(tissue) "
+                              + "RETURN tissue.tissue");
+    }
+    
+
+    
     // aantal mimentries + mimentries bij gegeven proteine.
     public ExecutionResult mimCount (String aProtAccession){
         return engine.execute("START protein=node:type(type='protein') "
@@ -139,26 +147,58 @@ public class CypherQuery {
     public ExecutionResult getRelationship(String aAccession, String bAccession) {
         return engine.execute("START proteinA=node:protein(accession = '" + aAccession + "'), proteinB=node:protein(accession = '" + bAccession + "') "
                               + "MATCH (proteinA)-[r]-(proteinB) "
-                              + "RETURN r");
+                              + "RETURN re");
     }
     
     // eiwitinteracties
     public ExecutionResult getProteinInteractions(String aAccession) {
         return engine.execute("START proteinA=node:protein(accession = '" + aAccession + "') "
-                              + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(protein) "
-                              + "RETURN protein.accession");
+                              + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]-(protein) "
+                              + "RETURN distinct protein.accession");
     }
-    //werkt niet :(
-    //geen enkel proteine heeft meer >3 interacties??
+    //proteinen met bepaald aantal interacties
     public ExecutionResult getProteinWithXInteractions(int X) {
-        return engine.execute("START protein=node:type(type='protein') "
-                              + "MATCH (protein)-[:PROTEIN_TO_PROTEIN_INTERACTION]-(protein) "
+        return engine.execute("START proteinA=node:type(type='protein') "
+                              + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(protein) "
                               + "WITH protein, count(protein) as proteins "
                               + "WHERE proteins > " + X + " "
                               + "RETURN protein.accession");
     }
-
-     // aantal nodes van een gegeven type. 
+    public ExecutionResult countInteractions (String aAccession){
+         return engine.execute("START proteinA=node:protein(accession='" + aAccession+ "') "
+                               + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(protein)" 
+                               + "WITH count(protein) as interactionCount "
+                               + "RETURN interactionCount");
+    }
+    // alle proteinen op afstand 2 van een gegeven proteine.
+    public ExecutionResult countProteinByProteinByProtein(String aAccession){
+        return engine.execute("START proteinA=node:protein(accession='" + aAccession + "'), proteinB=node:type(type='protein') "
+                              + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(proteinB)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(protein) "
+                              + "WITH count(protein) as protCount "
+                              + "RETURN protCount");
+    }
+    public ExecutionResult getProteinByProteinByProtein(String aAccession){
+        return engine.execute("START proteinA=node:protein(accession='" + aAccession + "'), proteinB=node:type(type='protein') "
+                              + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(proteinB)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(protein) "
+                              + "RETURN protein.accession");
+    }
+    
+    // interacting proteins in same tissue.
+    public ExecutionResult countInteractingProteinsInSameTissue(String aAccession, String aTissue){
+        return engine.execute ("START proteinA=node:protein(accession='" + aAccession + "'), tissue=node:tissue(tissue='" + aTissue + "') "
+                              + "MATCH (tissue)<-[:PROTEIN_TO_TISSUE]-(protein) "
+                              + "WHERE (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(protein) "
+                              + "WITH count(protein) as proteins "
+                              + "RETURN proteins");
+    }    
+    public ExecutionResult getInteractingProteinsInSameTissue(String aAccession, String aTissue){
+        return engine.execute ("START proteinA=node:protein(accession='" + aAccession + "'), tissue=node:tissue(tissue='" + aTissue + "') "
+                              + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]-(protein) "
+                              + "WHERE (protein)-[:PROTEIN_TO_TISSUE]->(tissue) "
+                              + "RETURN distinct protein.accession");
+    }
+        
+    // aantal nodes van een gegeven type. 
      public ExecutionResult countNodes(String aType) {
          return engine.execute("START n=node:type(type='" + aType + "') "
                                + "WITH count(n) as cnt "
