@@ -98,7 +98,11 @@ public class Starter {
             HashMap<String, Vertex> proteinAccessionToVertexMap = new HashMap<String, Vertex>();
             // Set van alle paarsgewijze interacties.
             HashSet<String[]> interactionsSet = new HashSet<String[]>();
+            int limit = 200;
+            int ilimit = 0;
             while((entry = dbLoader.nextRawEntry()) != null) {
+                if (ilimit >= limit) break;
+                ilimit++;
                 // Raw entry omzetten in HashMap
                 HashMap proteinHashMap = dbLoader.processRawData(entry);
                 // Properties uit HashMap halen
