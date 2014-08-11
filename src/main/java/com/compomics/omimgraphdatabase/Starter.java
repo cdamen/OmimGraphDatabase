@@ -1,49 +1,24 @@
 package com.compomics.omimgraphdatabase;
 
-import java.util.*;
-import java.io.*;
-import java.io.File;
-import java.net.URI;
-import java.io.OutputStream;
-import java.lang.*;
-
 import com.compomics.dbtoolkit.io.implementations.SwissProtDBLoader;
+import com.compomics.omimgraphdatabase.properties.LocationProperty;
+import com.compomics.omimgraphdatabase.properties.MIMProperty;
 import com.compomics.omimgraphdatabase.properties.ProteinProperty;
 import com.compomics.omimgraphdatabase.properties.TissueProperty;
-import com.compomics.omimgraphdatabase.properties.MIMProperty;
-import com.compomics.omimgraphdatabase.properties.LocationProperty;
-import com.compomics.omimgraphdatabase.properties.ProteinToLocationProperty;
-import com.compomics.omimgraphdatabase.properties.ProteinToMimProperty;
-import com.compomics.omimgraphdatabase.properties.ProteinToProteinInteractionProperty;
-import com.compomics.omimgraphdatabase.properties.ProteinToTissueProperty;
-
-import com.teradata.jdbc.jdbc_4.io.TDNetworkIOIF;
-
-import org.neo4j.cypher.ExecutionEngine;
-import org.neo4j.cypher.ExecutionResult;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.RelationshipType;
-import org.neo4j.kernel.impl.util.StringLogger;
-
+import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.Index;
 import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Index;
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
-import java.lang.invoke.MethodHandles;
-import org.apache.derby.tools.sysinfo;
-import org.gephi.io.importer.api.ImportController;
-import org.gephi.io.importer.spi.DatabaseImporter;
-import org.gephi.project.api.ProjectController;
-import org.gephi.project.api.Workspace;
-import org.neo4j.cypherdsl.grammar.ForEach;
-import org.neo4j.tooling.GlobalGraphOperations;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-import org.openide.util.Lookup;
-import org.springframework.data.graph.neo4j.rest.support.RestGraphDatabase;
+import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+
+import org.neo4j.cypher.ExecutionEngine;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.kernel.impl.util.StringLogger;
 
 
 
@@ -63,16 +38,10 @@ public class Starter {
     private Index<Vertex> tissueIndex;
     private Index<Vertex> mimIndex;
     private Index<Vertex> typeIndex;
-    private Index<Vertex> locationIndex;
-
-    
+    private Index<Vertex> locationIndex;   
     private HashMap<String, Vertex> tissueCache = new HashMap<String, Vertex>();
     private HashMap<String, Vertex> mimCache = new HashMap<String, Vertex>();
-    private HashMap<String, Vertex> locationCache = new HashMap<String, Vertex>();
-   
-
-
-    
+    private HashMap<String, Vertex> locationCache = new HashMap<String, Vertex>();   
     
     /**
      * Constructor that creates the graph database.
@@ -129,11 +98,7 @@ public class Starter {
             HashMap<String, Vertex> proteinAccessionToVertexMap = new HashMap<String, Vertex>();
             // Set van alle paarsgewijze interacties.
             HashSet<String[]> interactionsSet = new HashSet<String[]>();
-            int limit = 200;
-            int ilimit = 0;
             while((entry = dbLoader.nextRawEntry()) != null) {
-                if (ilimit >= limit) break;
-                ilimit++;
                 // Raw entry omzetten in HashMap
                 HashMap proteinHashMap = dbLoader.processRawData(entry);
                 // Properties uit HashMap halen
@@ -310,9 +275,6 @@ public class Starter {
                 createProteinToProteinInteractionEdge(proteinFrom, proteinTo);
             }
     }
-    
-
-    
 
     public Vertex createProteinVertex(String accession, String sequence, String name) {
         Vertex vertex = graph.addVertex(null);
@@ -333,14 +295,10 @@ public class Starter {
 
     public Vertex createXenoProteinVertex(String accession) {
         Vertex vertex = graph.addVertex(null);
-
         vertex.setProperty(ProteinProperty.ACCESSION.toString(), accession);
-
         typeIndex.put("type", "xenoprotein", vertex);
-        
         return vertex;
     }
-
 
     public Vertex createTissueVertex (String tissue){
         // EERST KIJKEN OF AL BESTAAT!!!! (cfr. lazy caching)
@@ -494,31 +452,27 @@ public class Starter {
         //proteine zoeken op accessienummer.
 //        GraphDb.printResult("Protein Q9P0K1:", cypherQuery.getProteinByAccessionMatch("Q9P0K"), "protein");
 //        GraphDb.printResult("Retrieving specific protein:", cypherQuery.getProteinByAccession("Q8R511"), "protein"); 
-        
         //alle proteinen in een specifiek weefsel.
 //        GraphDb.printResult("Get protein by tissue.", cypherQuery.getProteinByTissue("Skin"), "protein.accession");
         //alle weefsels bij een specifiek proteine
 //        GraphDb.printResult("Get tissues by protein.", cypherQuery.getTissueByProtein("P21333"), "tissue.tissue");
         //interagerende proteinen in hetzelfde weefsel.
-//        GraphDb.printResult("Count interacting proteins in the same tissue.", cypherQuery.countInteractingProteinsInSameTissue("P21333", "Platelet"), "proteins");
-//        GraphDb.printResult("Get interacting proteins in the same tissue.", cypherQuery.getInteractingProteinsInSameTissue("P21333", "Platelet"), "protein.accession");
-        
+        GraphDb.printResult("Count interacting proteins in the same tissue.", cypherQuery.countInteractingProteinsInSameTissue("Q96EB6", "Leukemic T-cell"), "proteins");
+        GraphDb.printResult("Get interacting proteins in the same tissue.", cypherQuery.getInteractingProteinsInSameTissue("Q96EB6", "Leukemic T-cell"), "protein.accession");
         //alle proteinen die minstens X mimentries hebben.
 //        GraphDb.printResult("Get proteins with 5 mimentries.", cypherQuery.getProteinWithXMims(5), "protein");
         //alle mims bij speciefiek proteine
-//        GraphDb.printResult("Count mims attached to protein.", cypherQuery.mimCount("P49238"), "mimCount");
-//        GraphDb.printResult("Get mims attached to protein.", cypherQuery.getMimByProteinAccession("P01031"), "mim.mimAccession");
-        //interagerende proteinen met bepaalde mim.
-//        GraphDb.printResult("Get protein by mim and interacting protein.", cypherQuery.getProteinByMimAndProtein("105830", "Q99608"), "protein.accession");
+//        GraphDb.printResult("Count mims attached to protein.", cypherQuery.mimCount("P04637"), "mimCount");
+//        GraphDb.printResult("Get mims attached to protein.", cypherQuery.getMimByProteinAccession("P04637"), "mim.mimAccession");
         
         //alle mimentries die met een minimum aantal proteinen gelinkt zijn.
 //        GraphDb.printResult("Get mims with 10 proteins.", cypherQuery.getMimWithXProteins(10), "mim.mimAccession");        
         //alle proteinen bij een specifieke mimaccessienummer.
 //        GraphDb.printResult("Count proteins attached to mimaccession.", cypherQuery.protCount("142830"), "protCount");
-//       GraphDb.printResult("Get protein by mimaccession.", cypherQuery.getProteinByMimAccession("180300"), "protein.accession");
+//       GraphDb.printResult("Get protein by mimaccession.", cypherQuery.getProteinByMimAccession("256000"), "protein.accession");
 
         //Subcellulaire locatie van proteinen gelinkt aan een bepaalde mim.
-//        GraphDb.printResult("Get subcellular location by mim.", cypherQuery.getLocationByMim("611162"), "location");
+//        GraphDb.printResult("Get subcellular location by mim.", cypherQuery.getLocationByMim("252010"), "location");
         
         //gemeenschappelijke eiwitten bij mims.
 //        GraphDb.printResult("Get common proteins.", cypherQuery.getCommonProteins("604967", "604966"), "protein.accession");
@@ -527,15 +481,15 @@ public class Starter {
 //        GraphDb.printResult("Get relationship.", cypherQuery.getRelationship("P31946", "Q9NYF0"), "r");
         
         //eiwitinteracties
-//        GraphDb.printResult("Get proteininteractions.", cypherQuery.getProteinInteractions("P16333"), "protein.name");
+//        GraphDb.printResult("Get proteininteractions.", cypherQuery.getProteinInteractions("P09022"), "protein.accession");
 //        GraphDb.printResult("Get proteininteractions > 35.", cypherQuery.getProteinWithXInteractions(35), "protein.accession");
 //        GraphDb.printResult("Count interactions.", cypherQuery.countInteractions("P09022"), "interactionCount");
         //Proteinen op afstand 2 van bepaald proteine + aantal
 //        GraphDb.printResult("Count proteins that interact with interacting proteins.", cypherQuery.countProteinByProteinByProtein("P09022"), "protCount");
-//        GraphDb.printResult("Get proteins that interact with interacting proteins.", cypherQuery.getProteinByProteinByProtein("P16333"), "protein.accession");
+//        GraphDb.printResult("Get proteins that interact with interacting proteins.", cypherQuery.getProteinByProteinByProtein("P09022"), "protein.accession");
         
         //aantal nodes van een bepaald type.
-       GraphDb.printResult("Count nodes of a given type.", cypherQuery.countNodes("protein"), "cnt");
+//       GraphDb.printResult("Count nodes of a given type.", cypherQuery.countNodes("protein"), "cnt");
     }
     
 
@@ -561,7 +515,7 @@ public class Starter {
             starter = new Starter(file);        
             // true om db te cleanen en opnieuw op te vullen (=cleanstart)
             // false om bestaande db te gebruiken
-            starter.connectDatabase("C:/Users/Caroline/Documents/geneeskunde/HP/GraphDatabase200", true);
+            starter.connectDatabase("C:/Users/Caroline/Documents/geneeskunde/HP/GraphDatabase", false);
             starter.queryProteins();
             Starter.exportGraphML(starter.getGraph(), new File ("C:/Users/Caroline/Documents/geneeskunde/HP/outputGraph.GraphML"));
 //            GephiGraph.makeGraph(graphDbFile);
