@@ -1,49 +1,24 @@
 package com.compomics.omimgraphdatabase;
 
-import java.util.*;
-import java.io.*;
-import java.io.File;
-import java.net.URI;
-import java.io.OutputStream;
-import java.lang.*;
-
 import com.compomics.dbtoolkit.io.implementations.SwissProtDBLoader;
+import com.compomics.omimgraphdatabase.properties.LocationProperty;
+import com.compomics.omimgraphdatabase.properties.MIMProperty;
 import com.compomics.omimgraphdatabase.properties.ProteinProperty;
 import com.compomics.omimgraphdatabase.properties.TissueProperty;
-import com.compomics.omimgraphdatabase.properties.MIMProperty;
-import com.compomics.omimgraphdatabase.properties.LocationProperty;
-import com.compomics.omimgraphdatabase.properties.ProteinToLocationProperty;
-import com.compomics.omimgraphdatabase.properties.ProteinToMimProperty;
-import com.compomics.omimgraphdatabase.properties.ProteinToProteinInteractionProperty;
-import com.compomics.omimgraphdatabase.properties.ProteinToTissueProperty;
-
-import com.teradata.jdbc.jdbc_4.io.TDNetworkIOIF;
-
-import org.neo4j.cypher.ExecutionEngine;
-import org.neo4j.cypher.ExecutionResult;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.RelationshipType;
-import org.neo4j.kernel.impl.util.StringLogger;
-
+import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.Index;
 import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Index;
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
-import java.lang.invoke.MethodHandles;
-import org.apache.derby.tools.sysinfo;
-import org.gephi.io.importer.api.ImportController;
-import org.gephi.io.importer.spi.DatabaseImporter;
-import org.gephi.project.api.ProjectController;
-import org.gephi.project.api.Workspace;
-import org.neo4j.cypherdsl.grammar.ForEach;
-import org.neo4j.tooling.GlobalGraphOperations;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-import org.openide.util.Lookup;
-import org.springframework.data.graph.neo4j.rest.support.RestGraphDatabase;
+import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+
+import org.neo4j.cypher.ExecutionEngine;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.kernel.impl.util.StringLogger;
 
 
 
@@ -63,16 +38,10 @@ public class Starter {
     private Index<Vertex> tissueIndex;
     private Index<Vertex> mimIndex;
     private Index<Vertex> typeIndex;
-    private Index<Vertex> locationIndex;
-
-    
+    private Index<Vertex> locationIndex;   
     private HashMap<String, Vertex> tissueCache = new HashMap<String, Vertex>();
     private HashMap<String, Vertex> mimCache = new HashMap<String, Vertex>();
-    private HashMap<String, Vertex> locationCache = new HashMap<String, Vertex>();
-   
-
-
-    
+    private HashMap<String, Vertex> locationCache = new HashMap<String, Vertex>();   
     
     /**
      * Constructor that creates the graph database.
@@ -306,9 +275,6 @@ public class Starter {
                 createProteinToProteinInteractionEdge(proteinFrom, proteinTo);
             }
     }
-    
-
-    
 
     public Vertex createProteinVertex(String accession, String sequence, String name) {
         Vertex vertex = graph.addVertex(null);
@@ -329,14 +295,10 @@ public class Starter {
 
     public Vertex createXenoProteinVertex(String accession) {
         Vertex vertex = graph.addVertex(null);
-
         vertex.setProperty(ProteinProperty.ACCESSION.toString(), accession);
-
         typeIndex.put("type", "xenoprotein", vertex);
-        
         return vertex;
     }
-
 
     public Vertex createTissueVertex (String tissue){
         // EERST KIJKEN OF AL BESTAAT!!!! (cfr. lazy caching)

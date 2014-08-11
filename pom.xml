@@ -16,8 +16,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
 
@@ -107,17 +107,6 @@
             <artifactId>spring-data-neo4j-rest</artifactId>
             <version>1.0.0.RELEASE</version>
         </dependency>  
-        
-        <dependency>
-            <groupId>gephi</groupId>
-            <artifactId>gephi-toolkit-0.8.7</artifactId>
-            <version>0.8.7</version>
-            <type>jar</type>
-            <systemPath>
-                C:\Users\Caroline\Documents\geneeskunde\HP\NetBeansProjects\OmimGraphDatabase\src\main\resources\gephi-toolkit.jar
-            </systemPath>
-            <scope>system</scope>
-        </dependency>         
     </dependencies>
     
     <repositories>
