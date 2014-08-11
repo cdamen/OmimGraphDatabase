@@ -66,9 +66,16 @@ public class CypherQuery {
     }
     public ExecutionResult getMimByProteinAccession (String aProtAccession) {
         return engine.execute("START protein=node:type(type='protein') "
-                + "MATCH (protein)-[:PROTEIN_TO_MIM]->mim "
-                + "WHERE protein.accession='" + aProtAccession + "' "
-                + "RETURN mim.mimAccession");
+                              + "MATCH (protein)-[:PROTEIN_TO_MIM]->mim "
+                              + "WHERE protein.accession='" + aProtAccession + "' "
+                              + "RETURN mim.mimAccession");
+    }
+    
+    public ExecutionResult getProteinByMimAndProtein (String aMim, String aAccession) {
+        return engine.execute("START mim=node:mim(mimAccession='" + aMim + "'), proteinA=node:protein(accession='" + aAccession + "') "
+                              + "MATCH (protein)-[:PROTEIN_TO_MIM]->(mim) "
+                              + "WHERE (protein)-[:PROTEIN_TO_PROTEIN_INTERACTION]-(proteinA) "
+                              + "RETURN protein.accession");
     }
 
     // aantal proteinen bij mimaccessienummer + proteinen.
@@ -98,7 +105,7 @@ public class CypherQuery {
 //   public ExecutionResult getProteinWithXMims() {
 //           ExecutionResult result = engine.execute("START protein=node:type(type='protein') "
 //                                              + "MATCH (protein)-[:PROTEIN_TO_MIM]-(mim) "
-//                                              + "RETURN mim, protein");
+//                                              + "RETURN mim, protein");          
 //            String table = "";
 //            String header = "";
 //            boolean first = true;
@@ -154,7 +161,7 @@ public class CypherQuery {
     public ExecutionResult getProteinInteractions(String aAccession) {
         return engine.execute("START proteinA=node:protein(accession = '" + aAccession + "') "
                               + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]-(protein) "
-                              + "RETURN distinct protein.accession");
+                              + "RETURN distinct protein.name");
     }
     //proteinen met bepaald aantal interacties
     public ExecutionResult getProteinWithXInteractions(int X) {
