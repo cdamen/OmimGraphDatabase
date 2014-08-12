@@ -14,15 +14,10 @@ import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 import java.io.*;
 import java.lang.*;
 import java.util.*;
-
-import org.neo4j.cypher.ExecutionEngine;
+import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.kernel.impl.util.StringLogger;
-
-
-
-
 	
 public class Starter {
     
@@ -90,8 +85,7 @@ public class Starter {
     public void fillGraphDatabase() throws IOException {
             // Indices maken.
             setupIndices();
-
-           
+            
             // Door alle eiwitten in DB gaan
             String entry;
             // HashMap die alle eiwitvertexen zal bevatten, met als key de accessienummer.
@@ -105,9 +99,11 @@ public class Starter {
                 ilimit++;
                 // Raw entry omzetten in HashMap
                 HashMap proteinHashMap = dbLoader.processRawData(entry);
+                
                 // Properties uit HashMap halen
                 // Eerst protein
                 String accession = (String) proteinHashMap.get("AC");
+               
                 // meerdere accessienummers per lijn, gescheiden door ;
                 // de eerste is de primary, die alleen willen we hebben.
                 if(accession.indexOf(";") > 0) {
@@ -282,7 +278,7 @@ public class Starter {
 
     public Vertex createProteinVertex(String accession, String sequence, String name) {
         Vertex vertex = graph.addVertex(null);
-
+        
         vertex.setProperty(ProteinProperty.ACCESSION.toString(), accession);
         proteinIndex.put(ProteinProperty.ACCESSION.toString(), accession, vertex);
 
@@ -362,7 +358,6 @@ public class Starter {
         return locationVertex;
     }
     
-    
     //Edge
     private void createProteinToTissueEdge(Vertex proteinVertex, Vertex tissueVertex) {
         graph.addEdge(null, proteinVertex, tissueVertex, "PROTEIN_TO_TISSUE");
@@ -440,12 +435,15 @@ public class Starter {
         return this.graph;
     }
     
+    /**
+     * This methods does Cypher querying.
+     */
     public void queryProteins() {
 	ExecutionEngine engine = new ExecutionEngine(graphDb.getGraphDatabase(), StringLogger.SYSTEM);
 	CypherQuery cypherQuery = new CypherQuery(engine);       
         
         //alle nodes.
-//        GraphDb.printResult("Get all nodes.", cypherQuery.getAllNodes(), "n");
+        //GraphDb.printResult("Get all nodes.", cypherQuery.getAllNodes(), "n");
         //alle xeno's.
 //        GraphDb.printResult("Retrieving all xenoproteins:", cypherQuery.getNodesByType("xenoprotein"), "n");
         //alle nodes van een bepaald type.
@@ -461,10 +459,12 @@ public class Starter {
         //alle weefsels bij een specifiek proteine
 //        GraphDb.printResult("Get tissues by protein.", cypherQuery.getTissueByProtein("P21333"), "tissue.tissue");
         //interagerende proteinen in hetzelfde weefsel.
-        GraphDb.printResult("Count interacting proteins in the same tissue.", cypherQuery.countInteractingProteinsInSameTissue("Q96EB6", "Leukemic T-cell"), "proteins");
-        GraphDb.printResult("Get interacting proteins in the same tissue.", cypherQuery.getInteractingProteinsInSameTissue("Q96EB6", "Leukemic T-cell"), "protein.accession");
+        //GraphDb.printResult("Count interacting proteins in the same tissue.", cypherQuery.countInteractingProteinsInSameTissue("Q96EB6", "Leukemic T-cell"), "proteins");
+        //GraphDb.printResult("Get interacting proteins in the same tissue.", cypherQuery.getInteractingProteinsInSameTissue("Q96EB6", "Leukemic T-cell"), "protein.accession");
         //alle proteinen die minstens X mimentries hebben.
-//        GraphDb.printResult("Get proteins with 5 mimentries.", cypherQuery.getProteinWithXMims(5), "protein");
+//        GraphDb.printResult("Retrieving all proteins:", cypherQuery.getNodesByType("protein"), "n");
+        GraphDb.printMultipleColumnResult("Get proteins with mimentries.", cypherQuery.getProteinWithMimEntry());
+        
         //alle mims bij speciefiek proteine
 //        GraphDb.printResult("Count mims attached to protein.", cypherQuery.mimCount("P04637"), "mimCount");
 //        GraphDb.printResult("Get mims attached to protein.", cypherQuery.getMimByProteinAccession("P04637"), "mim.mimAccession");
@@ -508,7 +508,7 @@ public class Starter {
 
 	
     public static void main(String[] args) {
-        File file = new File("C:/Users/Caroline/Documents/geneeskunde/HP/database uniprotein human/uniprot_sprot_human.dat");
+        File file = new File("C:\\Users\\tmuth\\Documents\\Downloads\\uniprot_sprot_human.dat");
         /* dit moet het bestand met alle nodes en edges zijn
          * C:\Users\Caroline\Documents\geneeskunde\HP\Neo4j\data\graph.db
          * met behulp van Gremlin naar graphdboutput.xml schrijven
@@ -519,9 +519,9 @@ public class Starter {
             starter = new Starter(file);        
             // true om db te cleanen en opnieuw op te vullen (=cleanstart)
             // false om bestaande db te gebruiken
-            starter.connectDatabase("C:/Users/Caroline/Documents/geneeskunde/HP/GraphDatabase", false);
+            starter.connectDatabase("C:\\Users\\tmuth\\Documents\\Downloads\\GraphDatabase", true);
             starter.queryProteins();
-            Starter.exportGraphML(starter.getGraph(), new File ("C:/Users/Caroline/Documents/geneeskunde/HP/outputGraph.GraphML"));
+            //Starter.exportGraphML(starter.getGraph(), new File ("C:/Users/Caroline/Documents/geneeskunde/HP/outputGraph.GraphML"));
 //            GephiGraph.makeGraph(graphDbFile);
             starter.closeGraphDb();
         } catch(IOException ioe) {

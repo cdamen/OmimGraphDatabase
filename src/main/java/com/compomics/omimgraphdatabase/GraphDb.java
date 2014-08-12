@@ -2,13 +2,14 @@ package com.compomics.omimgraphdatabase;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.neo4j.cypher.ExecutionResult;
+import java.util.List;
+import java.util.Map;
+import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.impl.util.FileUtils;
-
 import scala.collection.Iterator;
 
 
@@ -44,7 +45,7 @@ public class GraphDb {
 	
     public static void printResult(String msg, ExecutionResult result, String column) {
         System.out.println(msg);
-        Iterator<Object> columnAs = result.columnAs(column);
+        ResourceIterator<Object> columnAs = result.columnAs(msg);
         while (columnAs.hasNext()) {
             final Object value = columnAs.next();
             if (value instanceof Node) {
@@ -56,6 +57,19 @@ public class GraphDb {
                //System.out.println("]");
             } else {
                 System.out.println("{ " + column + " : " + value + " } ");
+            }
+        }
+    }
+    
+    public static void printMultipleColumnResult(String msg, ExecutionResult result) {
+        System.out.println(msg);
+        List<String> columns = result.columns();
+        for (Map<String, Object> map : result) {
+            for (String col : columns) {
+                Node n = (Node) map.get(col);
+                for (String key : n.getPropertyKeys()) {
+                    System.out.println("{ " + key + " : " + n.getProperty(key) + "; id: " + n.getId() + " } ");
+                }
             }
         }
     }

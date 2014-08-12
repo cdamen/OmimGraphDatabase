@@ -1,13 +1,7 @@
 package com.compomics.omimgraphdatabase;
 
-import com.compomics.omimgraphdatabase.properties.TissueProperty;
-import static org.neo4j.helpers.collection.MapUtil.map;
-
-import org.neo4j.cypher.ExecutionEngine;
-import org.neo4j.cypher.ExecutionResult;
-import org.neo4j.cypher.javacompat.*;
-
-import scala.collection.immutable.Map;
+import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.cypher.javacompat.ExecutionResult;
 
 /**
  *
@@ -101,30 +95,17 @@ public class CypherQuery {
                               + "WHERE mims > " + X + " "
                               + "RETURN protein");
     }
-   
-//   public ExecutionResult getProteinWithXMims() {
-//           ExecutionResult result = engine.execute("START protein=node:type(type='protein') "
-//                                              + "MATCH (protein)-[:PROTEIN_TO_MIM]-(mim) "
-//                                              + "RETURN mim, protein");          
-//            String table = "";
-//            String header = "";
-//            boolean first = true;
-////            while (result.hasNext()){
-////              Map<String, Object>  row = result.next();
-//            for ( Map<String, Object> row : result) ) {
-//                for ( Entry<String, Object> column : row.entrySet() ) {
-//                    if(first) {
-//                        header += column.getKey() + "\t";  
-//                    }
-//                    table += column.getValue() + "\t";
-//                }
-//                if(first) {
-//                    header += "\n";
-//                    first = false;
-//                }
-//                table += "\n";
-//    return result;
-//}}
+    
+   /**
+    * Returns the protein with a corresponding MIM entry.
+    * @return 
+    */
+    public ExecutionResult getProteinWithMimEntry() {
+        ExecutionResult result = engine.execute("START protein=node:type(type='protein') "
+                + "MATCH (protein)-[:PROTEIN_TO_MIM]->(mim) "
+                + "RETURN protein, mim");
+        return result;
+    }
     
     // mimentries gelinkt aan een minimum aantal proteinen.
     public ExecutionResult getMimWithXProteins(int X) {
