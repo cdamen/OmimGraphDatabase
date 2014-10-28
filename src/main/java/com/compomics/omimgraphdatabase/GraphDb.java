@@ -45,7 +45,8 @@ public class GraphDb {
 	
     public static void printResult(String msg, ExecutionResult result, String column) {
         System.out.println(msg);
-        ResourceIterator<Object> columnAs = result.columnAs(msg);
+        //ResourceIterator<Object> columnAs = result.columnAs(msg);
+        ResourceIterator<Object> columnAs = result.columnAs(column);
         while (columnAs.hasNext()) {
             final Object value = columnAs.next();
             if (value instanceof Node) {
@@ -69,11 +70,11 @@ public class GraphDb {
                 Node n = (Node) map.get(col);
                 for (String key : n.getPropertyKeys()) {
                     System.out.println("{ " + key + " : " + n.getProperty(key) + "; id: " + n.getId() + " } ");
-                }
+                } 
             }
         }
     }
-
+    
     /**
      * Clears the database.
      * @param dbPath Database path.

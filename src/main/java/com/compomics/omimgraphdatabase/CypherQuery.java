@@ -39,13 +39,14 @@ public class CypherQuery {
     public ExecutionResult getProteinByTissue(String aTissue) {
         return engine.execute("START tissue=node:tissue(tissue='" + aTissue +"') "
                               + "MATCH (tissue)-[:PROTEIN_TO_TISSUE]-(protein) "
-                              + "RETURN protein.accession LIMIT 20");
+                              + "RETURN protein");
     }
     
     public ExecutionResult getTissueByProtein(String aAccession) {
         return engine.execute("START protein=node:protein(accession='" + aAccession + "') "
-                              + "MATCH (protein)-[:PROTEIN_TO_TISSUE]->(tissue) "
-                              + "RETURN tissue.tissue");
+                                                + "MATCH (protein)-[:PROTEIN_TO_TISSUE]->(tissue) "
+                                                + "RETURN tissue.tissue");
+
     }
     
 
@@ -84,7 +85,7 @@ public class CypherQuery {
        return engine.execute("START mim=node:type(type='mim') "
                              + "MATCH (mim)<-[:PROTEIN_TO_MIM]-(protein)" 
                              + "WHERE mim.mimAccession=~'.*" + aMimAccession + ".*'  "
-                             + "RETURN protein.accession");
+                             + "RETURN protein.name");
     }
     
      //proteinen met een minimum aantal mimentries.
@@ -102,8 +103,8 @@ public class CypherQuery {
     */
     public ExecutionResult getProteinWithMimEntry() {
         ExecutionResult result = engine.execute("START protein=node:type(type='protein') "
-                + "MATCH (protein)-[:PROTEIN_TO_MIM]->(mim) "
-                + "RETURN protein, mim");
+                                                + "MATCH (protein)-[:PROTEIN_TO_MIM]->(mim) "
+                                                + "RETURN protein, mim");
         return result;
     }
     
@@ -117,11 +118,16 @@ public class CypherQuery {
     }    
     
     // subcellulaire locatie van proteinen gelinkt aan een bepaalde ziekte.
+    public ExecutionResult getLocationAndTissueByMim(String aMimAccession){
+        ExecutionResult result = engine.execute("START mim=node:mim(mimAccession='" + aMimAccession + "') "
+                                                + "MATCH (mim)<-[:PROTEIN_TO_MIM]-(protein)-[:PROTEIN_TO_LOCATION]->(location) "
+                                                + "RETURN distinct protein, location");
+        return result;
+    }
     public ExecutionResult getLocationByMim(String aMimAccession){
-        return engine.execute("START mim=node:type(type='mim') "
-                              + "MATCH (mim)<-[:PROTEIN_TO_MIM]-(protein)-[:PROTEIN_TO_LOCATION]->(location) "
-                              + "WHERE mim.mimAccession=~'" + aMimAccession + "'  "
-                              + "RETURN distinct location");
+        return engine.execute("START mim=node:mim(mimAccession='" + aMimAccession + "') "
+                                                + "MATCH (mim)<-[:PROTEIN_TO_MIM]-(protein)-[:PROTEIN_TO_LOCATION]->(location) "
+                                                + "RETURN distinct location.location");
     }
     
     // gemeenschappellijke eiwitten van twee ziektes.
@@ -175,15 +181,25 @@ public class CypherQuery {
     public ExecutionResult countInteractingProteinsInSameTissue(String aAccession, String aTissue){
         return engine.execute ("START proteinA=node:protein(accession='" + aAccession + "'), tissue=node:tissue(tissue='" + aTissue + "') "
                               + "MATCH (tissue)<-[:PROTEIN_TO_TISSUE]-(protein) "
-                              + "WHERE (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(protein) "
+                              + "WHERE (tissue)<-[:PROTEIN_TO_TISSUE]-(proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(protein) "
                               + "WITH count(protein) as proteins "
                               + "RETURN proteins");
     }    
     public ExecutionResult getInteractingProteinsInSameTissue(String aAccession, String aTissue){
         return engine.execute ("START proteinA=node:protein(accession='" + aAccession + "'), tissue=node:tissue(tissue='" + aTissue + "') "
                               + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]-(protein) "
-                              + "WHERE (protein)-[:PROTEIN_TO_TISSUE]->(tissue) "
-                              + "RETURN distinct protein.accession");
+                              + "WHERE (protein)-[:PROTEIN_TO_TISSUE]->(tissue)<-[:PROTEIN_TO_TISSUE]-(proteinA) "
+                              + "RETURN distinct protein.name");
+    }
+    
+    public ExecutionResult countProteinByProteinByProteinInSameTissue(String aAccession, String aTissue){
+        return engine.execute ("START proteinA=node:protein(accession='" + aAccession + "'), proteinB=node:type(type='protein'), "
+                              + "tissue=node:tissue(tissue='" + aTissue + "')  "
+                              + "MATCH (proteinA)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(proteinB)-[:PROTEIN_TO_PROTEIN_INTERACTION]->(protein) "
+                              + "WHERE (proteinB)-[:PROTEIN_TO_TISSUE]->(tissue)<-[:PROTEIN_TO_TISSUE]-(protein) "
+                              + "AND (proteinA)-[:PROTEIN_TO_TISSUE]->(tissue) "
+                              + "WITH count(protein) as proteins "
+                              + "RETURN proteins");  
     }
         
     // aantal nodes van een gegeven type. 

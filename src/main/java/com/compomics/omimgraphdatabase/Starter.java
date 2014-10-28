@@ -12,7 +12,6 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 import java.io.*;
-import java.lang.*;
 import java.util.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -457,14 +456,15 @@ public class Starter {
         //alle proteinen in een specifiek weefsel.
 //        GraphDb.printResult("Get protein by tissue.", cypherQuery.getProteinByTissue("Skin"), "protein.accession");
         //alle weefsels bij een specifiek proteine
-//        GraphDb.printResult("Get tissues by protein.", cypherQuery.getTissueByProtein("P21333"), "tissue.tissue");
+//        GraphDb.printResult("Get tissues by protein.", cypherQuery.getTissueByProtein("O15151"), "tissue.tissue");
         //interagerende proteinen in hetzelfde weefsel.
-        //GraphDb.printResult("Count interacting proteins in the same tissue.", cypherQuery.countInteractingProteinsInSameTissue("Q96EB6", "Leukemic T-cell"), "proteins");
-        //GraphDb.printResult("Get interacting proteins in the same tissue.", cypherQuery.getInteractingProteinsInSameTissue("Q96EB6", "Leukemic T-cell"), "protein.accession");
+        GraphDb.printResult("Count interacting proteins in the same tissue.", cypherQuery.countInteractingProteinsInSameTissue("P16333", "Cervix carcinoma"), "proteins");
+//        GraphDb.printResult("Get interacting proteins in the same tissue.", cypherQuery.getInteractingProteinsInSameTissue("P16333", "Cervix carcinoma"), "protein.name");
+        GraphDb.printResult("Get proteins that interact with interacting proteins in the same tissue.", cypherQuery.countProteinByProteinByProteinInSameTissue("P16333", "Cervix carcinoma"), "proteins");        
         //alle proteinen die minstens X mimentries hebben.
-//        GraphDb.printResult("Retrieving all proteins:", cypherQuery.getNodesByType("protein"), "n");
-        GraphDb.printMultipleColumnResult("Get proteins with mimentries.", cypherQuery.getProteinWithMimEntry());
-        
+//        GraphDb.printResult("n", cypherQuery.getNodesByType("protein"), "n");
+//        GraphDb.printMultipleColumnResult("Get proteins with mimentries.", cypherQuery.getProteinWithMimEntry());
+
         //alle mims bij speciefiek proteine
 //        GraphDb.printResult("Count mims attached to protein.", cypherQuery.mimCount("P04637"), "mimCount");
 //        GraphDb.printResult("Get mims attached to protein.", cypherQuery.getMimByProteinAccession("P04637"), "mim.mimAccession");
@@ -473,10 +473,11 @@ public class Starter {
 //        GraphDb.printResult("Get mims with 10 proteins.", cypherQuery.getMimWithXProteins(10), "mim.mimAccession");        
         //alle proteinen bij een specifieke mimaccessienummer.
 //        GraphDb.printResult("Count proteins attached to mimaccession.", cypherQuery.protCount("142830"), "protCount");
-//       GraphDb.printResult("Get protein by mimaccession.", cypherQuery.getProteinByMimAccession("256000"), "protein.accession");
+//        GraphDb.printResult("Get protein by mimaccession.", cypherQuery.getProteinByMimAccession("114500"), "protein.name");
 
-        //Subcellulaire locatie van proteinen gelinkt aan een bepaalde mim.
-//        GraphDb.printResult("Get subcellular location by mim.", cypherQuery.getLocationByMim("252010"), "location");
+        //Subcellulaire locatie en tissue van proteinen gelinkt aan een bepaalde mim.
+//        GraphDb.printMultipleColumnResult("Get subcellular location and tissue by mim.", cypherQuery.getLocationAndTissueByMim("256000"));
+//        GraphDb.printResult("Get distinct subcellular location by mim.", cypherQuery.getLocationByMim("252010"), "location.location");
         
         //gemeenschappelijke eiwitten bij mims.
 //        GraphDb.printResult("Get common proteins.", cypherQuery.getCommonProteins("604967", "604966"), "protein.accession");
@@ -485,12 +486,13 @@ public class Starter {
 //        GraphDb.printResult("Get relationship.", cypherQuery.getRelationship("P31946", "Q9NYF0"), "r");
         
         //eiwitinteracties
-//        GraphDb.printResult("Get proteininteractions.", cypherQuery.getProteinInteractions("P09022"), "protein.accession");
+//        GraphDb.printResult("Get proteininteractions.", cypherQuery.getProteinInteractions("P16333"), "protein.name");
 //        GraphDb.printResult("Get proteininteractions > 35.", cypherQuery.getProteinWithXInteractions(35), "protein.accession");
 //        GraphDb.printResult("Count interactions.", cypherQuery.countInteractions("P09022"), "interactionCount");
         //Proteinen op afstand 2 van bepaald proteine + aantal
 //        GraphDb.printResult("Count proteins that interact with interacting proteins.", cypherQuery.countProteinByProteinByProtein("P09022"), "protCount");
 //        GraphDb.printResult("Get proteins that interact with interacting proteins.", cypherQuery.getProteinByProteinByProtein("P09022"), "protein.accession");
+
         
         //aantal nodes van een bepaald type.
 //       GraphDb.printResult("Count nodes of a given type.", cypherQuery.countNodes("protein"), "cnt");
@@ -508,7 +510,7 @@ public class Starter {
 
 	
     public static void main(String[] args) {
-        File file = new File("C:\\Users\\tmuth\\Documents\\Downloads\\uniprot_sprot_human.dat");
+        File file = new File("C:/Users/Caroline/Documents/geneeskunde/HP/database uniprotein human/uniprot_sprot_human.dat");
         /* dit moet het bestand met alle nodes en edges zijn
          * C:\Users\Caroline\Documents\geneeskunde\HP\Neo4j\data\graph.db
          * met behulp van Gremlin naar graphdboutput.xml schrijven
@@ -519,7 +521,7 @@ public class Starter {
             starter = new Starter(file);        
             // true om db te cleanen en opnieuw op te vullen (=cleanstart)
             // false om bestaande db te gebruiken
-            starter.connectDatabase("C:\\Users\\tmuth\\Documents\\Downloads\\GraphDatabase", true);
+            starter.connectDatabase("C:/Users/Caroline/Documents/geneeskunde/HP/GraphDatabase", false);
             starter.queryProteins();
             //Starter.exportGraphML(starter.getGraph(), new File ("C:/Users/Caroline/Documents/geneeskunde/HP/outputGraph.GraphML"));
 //            GephiGraph.makeGraph(graphDbFile);
